@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">GitTest</string>
+    <string name="list_app_name">List of repos</string>
+
+    <string name="et_username_hint">Имя пользователя</string>
+    <string name="last_request_header">Последние запросы</string>
+    <string name="button_goto_list">К списку</string>
+
+
+    <string-array name="repo_type_array">
+        <item>Все</item>
+        <item>Пользователь владелец</item>
+        <item>Пользователь участник</item>
+    </string-array>
+    <string-array name="repo_type_array_values" translatable = "false">
+        <item>all</item>
+        <item>owner</item>
+        <item>member</item>
+    </string-array>
+
+    <string-array name="repo_sort_array">
+        <item>По полному имени</item>
+        <item>По дате создания</item>
+    </string-array>
+
+</resources>
