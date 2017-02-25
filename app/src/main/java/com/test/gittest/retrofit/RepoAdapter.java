@@ -38,11 +38,6 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(RepoAdapter.ViewHolder holder, int position) {
         RepoPostModel pm = repos.get(position);
-        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            holder.post.setText(Html.fromHtml(pm.getElementPureHtml(), Html.FROM_HTML_MODE_LEGACY));
-        } else {
-            holder.post.setText(Html.fromHtml(pm.getElementPureHtml()));
-        }*/
         holder.name.setText(pm.getName());
         holder.full_name.setText(pm.getFullName());
         holder.created_at.setText(pm.getCreatedAt().toString());
@@ -55,18 +50,47 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
         return repos.size();
     }
 
-    public void sortByDate() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            repos.sort((o1, o2) -> datefromStr(o1.getCreatedAt()).compareTo(datefromStr(o2.getCreatedAt())));
-        } else {
-            //
-            Collections.sort(repos, new Comparator<RepoPostModel>() {
-                public int compare(RepoPostModel o1, RepoPostModel o2) {
-                    return datefromStr(o1.getCreatedAt()).compareTo(datefromStr(o2.getCreatedAt()));
-                }
-            });
+    public List<RepoPostModel> getCollection() {
+        return repos;
+    }
+
+    /**
+     * Sort repos by name in ascending order
+     */
+    public void sortByFullNameAsc() {
+        if (repos != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                repos.sort((o1, o2) -> o1.getFullName().compareTo(o2.getFullName()));
+            } else {
+                //
+                Collections.sort(repos, new Comparator<RepoPostModel>() {
+                    public int compare(RepoPostModel o1, RepoPostModel o2) {
+                        return o1.getFullName().compareTo(o2.getFullName());
+                    }
+                });
+            }
+            notifyDataSetChanged();
         }
-        notifyDataSetChanged();
+    }
+
+
+    /**
+     * Sort repos by date in ascending order
+     */
+    public void sortByDateAsc() {
+        if (repos != null) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                repos.sort((o1, o2) -> datefromStr(o1.getCreatedAt()).compareTo(datefromStr(o2.getCreatedAt())));
+            } else {
+                //
+                Collections.sort(repos, new Comparator<RepoPostModel>() {
+                    public int compare(RepoPostModel o1, RepoPostModel o2) {
+                        return datefromStr(o1.getCreatedAt()).compareTo(datefromStr(o2.getCreatedAt()));
+                    }
+                });
+            }
+            notifyDataSetChanged();
+        }
     }
 
     /**

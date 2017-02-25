@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Main2Activity"
+            android:name=".SecondActivity"
             android:label="@string/list_app_name"
             android:theme="@style/ListTheme">
 

@@ -15,8 +15,20 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText userNameV;
     private Spinner repoTypeV;
-    private Button btnGoToList;
-    private ListView lastRequestListV;
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putString("user_name", userNameV.getText().toString());
+        outState.putInt("repo_type", repoTypeV.getSelectedItemPosition());
+        super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        userNameV.setText(savedInstanceState.getString("user_name"));
+        repoTypeV.setSelection(savedInstanceState.getInt("repo_type"));
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,12 +37,13 @@ public class MainActivity extends AppCompatActivity {
         //
         userNameV = (EditText) findViewById(R.id.user_name);
         repoTypeV = (Spinner) findViewById(R.id.repo_type);
-        btnGoToList = (Button) findViewById(R.id.button_goto_list);
-        lastRequestListV = (ListView) findViewById(R.id.last_requests);
+        Button btnGoToList = (Button) findViewById(R.id.button_goto_list);
+        ListView lastRequestListV = (ListView) findViewById(R.id.last_requests);
         //
         String[] queryType = getResources().getStringArray(R.array.repo_type_array_values);
+        //
         btnGoToList.setOnClickListener(e -> {
-            Intent intent = new Intent(this, Main2Activity.class);
+            Intent intent = new Intent(this, SecondActivity.class);
             intent.putExtra("user_name", userNameV.getText().toString());
             intent.putExtra("query_type", queryType[repoTypeV.getSelectedItemPosition()]);
             startActivity(intent);
@@ -45,8 +58,4 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    private boolean startRequest() {
-        //
-        return true;
-    }
 }
