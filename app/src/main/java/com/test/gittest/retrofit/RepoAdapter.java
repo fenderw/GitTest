@@ -9,11 +9,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.test.gittest.R;
+import com.test.gittest.models.Repo;
 import com.test.gittest.utils.ISO8601;
 
 import java.text.ParseException;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -23,9 +23,9 @@ import java.util.List;
 
 public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
 
-    private List<RepoPostModel> repos;
+    private List<Repo> repos;
 
-    public RepoAdapter(List<RepoPostModel> repos) {
+    public RepoAdapter(List<Repo> repos) {
         this.repos = repos;
     }
 
@@ -37,10 +37,10 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(RepoAdapter.ViewHolder holder, int position) {
-        RepoPostModel pm = repos.get(position);
+        Repo pm = repos.get(position);
         holder.name.setText(pm.getName());
         holder.full_name.setText(pm.getFullName());
-        holder.created_at.setText(pm.getCreatedAt().toString());
+        holder.created_at.setText(pm.getCreatedAt());
     }
 
     @Override
@@ -50,7 +50,7 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
         return repos.size();
     }
 
-    public List<RepoPostModel> getCollection() {
+    public List<Repo> getCollection() {
         return repos;
     }
 
@@ -63,11 +63,7 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
                 repos.sort((o1, o2) -> o1.getFullName().compareTo(o2.getFullName()));
             } else {
                 //
-                Collections.sort(repos, new Comparator<RepoPostModel>() {
-                    public int compare(RepoPostModel o1, RepoPostModel o2) {
-                        return o1.getFullName().compareTo(o2.getFullName());
-                    }
-                });
+                Collections.sort(repos, (o1, o2) -> o1.getFullName().compareTo(o2.getFullName()));
             }
             notifyDataSetChanged();
         }
@@ -83,11 +79,7 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
                 repos.sort((o1, o2) -> datefromStr(o1.getCreatedAt()).compareTo(datefromStr(o2.getCreatedAt())));
             } else {
                 //
-                Collections.sort(repos, new Comparator<RepoPostModel>() {
-                    public int compare(RepoPostModel o1, RepoPostModel o2) {
-                        return datefromStr(o1.getCreatedAt()).compareTo(datefromStr(o2.getCreatedAt()));
-                    }
-                });
+                Collections.sort(repos, (o1, o2) -> datefromStr(o1.getCreatedAt()).compareTo(datefromStr(o2.getCreatedAt())));
             }
             notifyDataSetChanged();
         }
@@ -114,7 +106,7 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
         TextView full_name;
         TextView created_at;
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.item_name);
             full_name = (TextView) itemView.findViewById(R.id.item_full_name);

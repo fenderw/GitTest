@@ -9,10 +9,13 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
+import android.widget.Toast;
 
-import com.test.gittest.retrofit.App;
+import com.test.gittest.models.Owner;
+import com.test.gittest.models.Repo;
+import com.test.gittest.models.User;
+import com.test.gittest.app.App;
 import com.test.gittest.retrofit.RepoAdapter;
-import com.test.gittest.retrofit.RepoPostModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,7 +28,7 @@ public class SecondActivity extends AppCompatActivity {
 
     private final String TAG = "SecondActivity";
 
-    private Call<List<RepoPostModel>> retrofitCall;
+    private Call<List<Repo>> retrofitCall;
     private Spinner sortSpinner;
 
     @Override
@@ -45,14 +48,12 @@ public class SecondActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main2);
         //
-        List<RepoPostModel> repos = new ArrayList<>();
+        List<Repo> repos = new ArrayList<>();
         RepoAdapter reposAdapter = new RepoAdapter(repos);
         //
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.arrow_left);
-        toolbar.setNavigationOnClickListener(e -> {
-            finish();
-        });
+        toolbar.setNavigationOnClickListener(e -> this.finish());
         //
         sortSpinner = (Spinner) toolbar.findViewById(R.id.tb_spinner);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rec_view);
@@ -78,19 +79,19 @@ public class SecondActivity extends AppCompatActivity {
         String userNameStr = getIntent().getStringExtra("user_name");
         String queryTypeStr = getIntent().getStringExtra("query_type");
         retrofitCall = App.getApi().getData(userNameStr, queryTypeStr);
-        retrofitCall.enqueue(new Callback<List<RepoPostModel>>() {
+        retrofitCall.enqueue(new Callback<List<Repo>>() {
             @Override
-            public void onResponse(Call<List<RepoPostModel>> call, Response<List<RepoPostModel>> response) {
+            public void onResponse(Call<List<Repo>> call, Response<List<Repo>> response) {
                 if (response.body() != null) {
                     adapter.getCollection().addAll(response.body());
                     sortRepos(adapter, sortSpinner.getSelectedItemPosition());
-                    adapter.notifyDataSetChanged();
+                    saveInDB(userNameStr, queryTypeStr, response);
                 } else
                     Log.d(TAG, "null_response for " + userNameStr);
             }
 
             @Override
-            public void onFailure(Call<List<RepoPostModel>> call, Throwable t) {
+            public void onFailure(Call<List<Repo>> call, Throwable t) {
                 Log.d(TAG, "Failed response for " + userNameStr);
             }
         });
@@ -110,6 +111,24 @@ public class SecondActivity extends AppCompatActivity {
                     adapter.sortByDateAsc();
                     break;
             }
+        }
+    }
+
+    private void saveInDB(String username, String repo_type, Response<List<Repo>> response) {
+        if (User.getNumberOfRows() == 2) {
+            User.deleteUserById(User.getFirstRowId());
+            Toast.makeText(this, "Number of users =" + User.getNumberOfRows() + "  first id = " + User.getFirstRowId(), Toast.LENGTH_SHORT).show();
+        }
+        User user = new User();
+        user.setUsername(username);
+        user.setRepo_type(repo_type);
+        user.save();
+        for (Repo repo : response.body()) {
+            repo.user = user;
+            repo.save();
+            Owner owner = repo.getOwner();
+            owner.repo = repo;
+            owner.save();
         }
     }
 
