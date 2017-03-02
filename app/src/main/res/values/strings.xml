@@ -6,6 +6,14 @@
     <string name="last_request_header">Последние запросы</string>
     <string name="button_goto_list">К списку</string>
 
+    <!--for repo details-->
+    <string name="repo_description">Описание:</string>
+    <string name="repo_created_at">Создан:</string>
+    <string name="repo_updated_at">Обнавлен:</string>
+    <string name="repo_stars">Звезды:</string>
+    <string name="repo_language">Язык:</string>
+
+    <string name="toat_connection_error">Проверьте соединение с интернетом!</string>
 
     <string-array name="repo_type_array">
         <item>Все</item>

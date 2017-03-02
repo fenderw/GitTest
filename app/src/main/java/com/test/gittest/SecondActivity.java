@@ -2,6 +2,7 @@ package com.test.gittest;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -11,10 +12,10 @@ import android.widget.AdapterView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.test.gittest.app.App;
 import com.test.gittest.models.Owner;
 import com.test.gittest.models.Repo;
 import com.test.gittest.models.User;
-import com.test.gittest.app.App;
 import com.test.gittest.retrofit.RepoAdapter;
 
 import java.util.ArrayList;
@@ -46,19 +47,22 @@ public class SecondActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main2);
+        setContentView(R.layout.activity_second);
         //
         List<Repo> repos = new ArrayList<>();
-        RepoAdapter reposAdapter = new RepoAdapter(repos);
+        RepoAdapter reposAdapter = new RepoAdapter(this, getIntent().getStringExtra("user_name"), repos);
         //
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setNavigationIcon(R.drawable.arrow_left);
-        toolbar.setNavigationOnClickListener(e -> this.finish());
+        toolbar.setNavigationOnClickListener(e -> finish());
         //
         sortSpinner = (Spinner) toolbar.findViewById(R.id.tb_spinner);
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rec_view);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+                layoutManager.getOrientation());
+        recyclerView.addItemDecoration(dividerItemDecoration);
         recyclerView.setAdapter(reposAdapter);
         sortSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -72,11 +76,21 @@ public class SecondActivity extends AppCompatActivity {
             }
         });
         //
-        getRemoteData(reposAdapter);
+        long userId = getIntent().getLongExtra("user_id", 0);
+        if (userId > 0)
+            getUserFromDB(reposAdapter, userId);
+        else
+            getRemoteData(reposAdapter);
+    }
+
+    private void getUserFromDB(RepoAdapter adapter, long userId) {
+        User user = User.getUserById(userId);
+        adapter.getCollection().addAll(user.getRepoList());
+        sortRepos(adapter, sortSpinner.getSelectedItemPosition());
     }
 
     private void getRemoteData(RepoAdapter adapter) {
-        String userNameStr = getIntent().getStringExtra("user_name");
+        String userNameStr = adapter.getUserName();
         String queryTypeStr = getIntent().getStringExtra("query_type");
         retrofitCall = App.getApi().getData(userNameStr, queryTypeStr);
         retrofitCall.enqueue(new Callback<List<Repo>>() {
@@ -92,6 +106,7 @@ public class SecondActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<Repo>> call, Throwable t) {
+                Toast.makeText(getBaseContext(), R.string.toat_connection_error, Toast.LENGTH_SHORT).show();
                 Log.d(TAG, "Failed response for " + userNameStr);
             }
         });
@@ -117,7 +132,6 @@ public class SecondActivity extends AppCompatActivity {
     private void saveInDB(String username, String repo_type, Response<List<Repo>> response) {
         if (User.getNumberOfRows() == 2) {
             User.deleteUserById(User.getFirstRowId());
-            Toast.makeText(this, "Number of users =" + User.getNumberOfRows() + "  first id = " + User.getFirstRowId(), Toast.LENGTH_SHORT).show();
         }
         User user = new User();
         user.setUsername(username);

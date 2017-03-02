@@ -28,7 +28,6 @@ public class User extends Model {
         this.repoList = repoList;
     }
 
-    // this is optional
     public List<Repo> getRepoList() {
         return getMany(Repo.class, "User");
     }
@@ -60,6 +59,16 @@ public class User extends Model {
                 .from(User.class)
                 .orderBy("Id DESC")
                 .execute();
+    }
+
+    /**
+     * get user by id
+     * */
+    public static User getUserById(long id) {
+        return new Select()
+                .from(User.class)
+                .where("id=?", id)
+                .executeSingle();
     }
 
     /**

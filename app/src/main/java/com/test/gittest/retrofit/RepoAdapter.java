@@ -1,5 +1,6 @@
 package com.test.gittest.retrofit;
 
+import android.content.Context;
 import android.os.Build;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -24,23 +25,33 @@ import java.util.List;
 public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
 
     private List<Repo> repos;
+    private String userName;
+    private Context context;
 
-    public RepoAdapter(List<Repo> repos) {
+    public RepoAdapter(Context context, String userName, List<Repo> repos) {
+        this.context = context;
+        this.userName = userName;
         this.repos = repos;
     }
 
     @Override
     public RepoAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.post_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.repo_item, parent, false);
         return new ViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(RepoAdapter.ViewHolder holder, int position) {
         Repo pm = repos.get(position);
-        holder.name.setText(pm.getName());
-        holder.full_name.setText(pm.getFullName());
-        holder.created_at.setText(pm.getCreatedAt());
+        if (pm.getOwnerName().equals(userName))
+            holder.name.setText(pm.getName());
+        else
+            holder.name.setText(pm.getFullName());
+        holder.description.setText(context.getResources().getString(R.string.repo_description) + " " + pm.getDescription());
+        holder.created_at.setText(context.getResources().getString(R.string.repo_created_at) + " " + pm.getCreatedAt());
+        holder.updated_at.setText(context.getResources().getString(R.string.repo_updated_at) + " " + pm.getUpdatedAt());
+        holder.stargazers_count.setText(context.getResources().getString(R.string.repo_stars) + " " + pm.getStargazersCount().toString());
+        holder.language.setText(context.getResources().getString(R.string.repo_language) + " " + pm.getLanguage());
     }
 
     @Override
@@ -60,10 +71,10 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
     public void sortByFullNameAsc() {
         if (repos != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                repos.sort((o1, o2) -> o1.getFullName().compareTo(o2.getFullName()));
+                repos.sort((o1, o2) -> o1.getFullName().compareToIgnoreCase(o2.getFullName()));
             } else {
                 //
-                Collections.sort(repos, (o1, o2) -> o1.getFullName().compareTo(o2.getFullName()));
+                Collections.sort(repos, (o1, o2) -> o1.getFullName().compareToIgnoreCase(o2.getFullName()));
             }
             notifyDataSetChanged();
         }
@@ -103,14 +114,28 @@ public class RepoAdapter extends RecyclerView.Adapter<RepoAdapter.ViewHolder> {
     class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView name;
-        TextView full_name;
+        TextView description;
         TextView created_at;
+        TextView updated_at;
+        TextView stargazers_count;
+        TextView language;
 
         ViewHolder(View itemView) {
             super(itemView);
             name = (TextView) itemView.findViewById(R.id.item_name);
-            full_name = (TextView) itemView.findViewById(R.id.item_full_name);
+            description = (TextView) itemView.findViewById(R.id.item_description);
             created_at = (TextView) itemView.findViewById(R.id.item_created_at);
+            updated_at = (TextView) itemView.findViewById(R.id.item_updated_at);
+            stargazers_count = (TextView) itemView.findViewById(R.id.item_stargazers_count);
+            language = (TextView) itemView.findViewById(R.id.item_language);
         }
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getUserName() {
+        return userName;
     }
 }
